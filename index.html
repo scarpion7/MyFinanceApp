@@ -1069,6 +1069,7 @@
   <script>
     // ====== API Configuration
     const API_BASE_URL = 'https://myfinanceapp.onrender.com';
+    const app = initializeApp(firebaseConfig);
     
     // ====== Storage Keys
     const SK = {
@@ -2711,5 +2712,30 @@
       $('#filterTo').value = today;
     });
   </script>
+    <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js"></script>
+
+  <script>
+    // Firebase konfiguratsiyasi
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBwAbAmhYZbyNmmq83uf46Qn47TdUveac",
+      authDomain: "finance-control-apps.firebaseapp.com",
+      databaseURL: "https://finance-control-apps-default-rtdb.firebaseio.com",
+      projectId: "finance-control-apps",
+      storageBucket: "finance-control-apps.firebasestorage.app",
+      messagingSenderId: "289705043842",
+      appId: "1:289705043842:web:8c42eff9161fa77251519b",
+      measurementId: "G-31B18G8CFM"
+    };
+
+    // Firebase init
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 </body>
 </html>
