@@ -1,0 +1,2715 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MyFinance – Moliyaviy Nazorat</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { scrollbar-width: thin; }
+    ::-webkit-scrollbar { height: 8px; width: 8px; }
+    ::-webkit-scrollbar-thumb { background: #a3a3a3; border-radius: 10px; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .chip { @apply inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium; }
+    .password-toggle { cursor: pointer; }
+    .auth-container {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 420px;
+      overflow: hidden;
+    }
+    .auth-header {
+      background: linear-gradient(135deg, #5048e7 0%, #7c3aed 100%);
+      color: white;
+      padding: 24px;
+      text-align: center;
+    }
+    .auth-body {
+      padding: 24px;
+    }
+    .auth-footer {
+      padding: 16px 24px 24px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #374151;
+    }
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+    .input-with-icon {
+      position: relative;
+    }
+    .input-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 10px 16px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover {
+      background: #4338ca;
+    }
+    .btn-secondary {
+      width: 100%;
+      padding: 10px 16px;
+      background: #f3f4f6;
+      color: #374151;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+    .alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .alert-error {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    .success-checkmark {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .success-checkmark i {
+      font-size: 48px;
+      color: #10b981;
+    }
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 8px 0;
+      min-width: 180px;
+      z-index: 50;
+      margin-top: 8px;
+    }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .dropdown-item:hover {
+      background: #f3f4f6;
+    }
+    
+    /* Dark mode styles - IMPROVED */
+    .dark-mode {
+      background-color: #28272e !important;
+      color: #f3eded !important;
+    }
+    .dark-mode .auth-card {
+      background: #1f2937;
+    }
+    .dark-mode .auth-header {
+      background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+    }
+    .dark-mode .form-label {
+      color: #d1d5db;
+    }
+    .dark-mode .form-input {
+      background: #353b46;
+      border-color: #282c31;
+      color: #f3f4f6;
+    }
+    .dark-mode .form-input:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3);
+    }
+    .dark-mode .input-icon {
+      color: #9ca3af;
+    }
+    .dark-mode .btn-secondary {
+      background: #374151;
+      color: #f3f4f6;
+    }
+    .dark-mode .btn-secondary:hover {
+      background: #4b5563;
+    }
+    .dark-mode .alert-error {
+      background: #7f1d1d;
+      color: #fecaca;
+      border-color: #991b1b;
+    }
+    .dark-mode .alert-success {
+      background: #065f46;
+      color: #d1fae5;
+      border-color: #047857;
+    }
+    .dark-mode .text-gray-500 {
+      color: #9ca3af !important;
+    }
+    .dark-mode .text-gray-600 {
+      color: #d1d5db !important;
+    }
+    .dark-mode .text-indigo-600 {
+      color: #818cf8 !important;
+    }
+    .dark-mode .border {
+      border-color: #374151 !important;
+    }
+    .dark-mode .bg-white {
+      background-color: #1f2937 !important;
+    }
+    .dark-mode .text-gray-900 {
+      color: #f3f4f6 !important;
+    }
+    .dark-mode .bg-gray-50 {
+      background-color: #374151 !important;
+    }
+    .dark-mode .hover\:bg-gray-50:hover {
+      background-color: #4b5563 !important;
+    }
+    .dark-mode .bg-red-500 {
+      background-color: #ef4444;
+    }
+    .dark-mode .hover\:bg-red-600:hover {
+      background-color: #dc2626;
+    }
+    .dark-mode .bg-indigo-600 {
+      background-color: #4f46e5;
+    }
+    .dark-mode .hover\:bg-indigo-700:hover {
+      background-color: #4338ca;
+    }
+    .dark-mode .border-gray-800 {
+      border-color: #374151;
+    }
+    .dark-mode .text-gray-100 {
+      color: #f3f4f6;
+    }
+    .dark-mode .hover\:bg-gray-700:hover {
+      background-color: #4b5563;
+    }
+    .dark-mode .bg-gray-900 {
+      background-color: #111827;
+    }
+    .dark-mode .bg-emerald-100 {
+      background-color: #064e3b;
+      color: #a7f3d0;
+    }
+    .dark-mode .bg-red-100 {
+      background-color: #7f1d1d;
+      color: #fecaca;
+    }
+    .dark-mode .text-emerald-700 {
+      color: #a7f3d0;
+    }
+    .dark-mode .text-red-700 {
+      color: #fecaca;
+    }
+    .dark-mode .bg-emerald-900\/40 {
+      background-color: rgba(6, 78, 59, 0.4);
+    }
+    .dark-mode .bg-red-900\/40 {
+      background-color: rgba(127, 29, 29, 0.4);
+    }
+    .dark-mode .dropdown-menu {
+      background: #165c39;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .dark-mode .dropdown-item {
+      color: #f3f4f6;
+    }
+    .dark-mode .dropdown-item:hover {
+      background: #068817;
+    }
+    .dark-mode .bg-gray-800 {
+      background-color: #1f2937 !important;
+    }
+    .dark-mode .dark\:bg-gray-700 {
+      background-color: #374151 !important;
+    }
+    .dark-mode .dark\:text-white {
+      color: #f3f4f6 !important;
+    }
+    .dark-mode .dark\:text-gray-300 {
+      color: #d1d5db !important;
+    }
+    .dark-mode .dark\:text-gray-400 {
+      color: #9ca3af !important;
+    }
+    .dark-mode .dark\:border-gray-700 {
+      border-color: #374151 !important;
+    }
+    
+    /* Responsive improvements */
+    @media (max-width: 640px) {
+      .auth-card {
+        margin: 10px;
+      }
+      
+      .grid-cols-1 {
+        grid-template-columns: 1fr;
+      }
+      
+      .flex-wrap {
+        flex-wrap: wrap;
+      }
+      
+      .tab-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+      
+      #main-nav ul {
+        justify-content: center;
+      }
+      
+      .md\:grid-cols-6 {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+      }
+      
+      .md\:grid-cols-4 {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+      }
+      
+      .md\:grid-cols-2 {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+      }
+      
+      .md\:col-span-1 {
+        grid-column: span 1 / span 1;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .lg\:col-span-2 {
+        grid-column: span 1 / span 1;
+      }
+    }
+    
+    /* Header avatar */
+    .header-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 1px;
+    }
+    
+    /* Language selector fix */
+    #langSelect {
+      background-color: white;
+      color: #374151;
+    }
+    
+    .dark-mode #langSelect {
+      background-color: #0dc86f !important;
+      color: #000000 !important;
+    }
+    
+    /* Dark mode header style */
+    .dark-mode .header-title {
+      background-color: #0dc86f !important;
+      color: #000000 !important;
+    }
+    
+    /* Dark mode dropdown style */
+    .dark-mode #dropdownTrigger {
+      background-color: #0dc86f !important;
+      color: #000000 !important;
+    }
+    
+    /* Active period button style */
+    .period.active {
+      background-color: #4f46e5;
+      color: white;
+    }
+    
+    .dark-mode .period.active {
+      background-color: #818cf8;
+      color: #000000;
+    }
+    
+    /* Header styling */
+    header {
+      background-color: #0dc86f !important;
+      color: #000000 !important;
+    }
+    
+    header * {
+      color: #000000 !important;
+    }
+    
+    #userGreeting {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    
+    /* Profile page styling */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Reports page styling */
+    .reports-grid {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+    
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark-mode .info-card {
+      background: #1f2937;
+    }
+    
+    .category-example {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f8fafc;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .dark-mode .category-example {
+      background: #374151;
+    }
+    
+    /* Phone input styling */
+    .phone-hint {
+      font-size: 12px;
+      margin-top: 4px;
+      color: #6b7280;
+    }
+    
+    .dark-mode .phone-hint {
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 transition-colors duration-300" id="body">
+  <!-- Auth Container (shown by default) -->
+  <div id="authContainer" class="auth-container">
+    <!-- Welcome message and language selector -->
+    <div class="absolute top-4 right-4 z-10">
+      <select id="authLangSelect" class="px-3 py-1.5 rounded-lg border text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        <option value="uz">UZB</option>
+        <option value="en">ENG</option>
+        <option value="ru">RUS</option>
+      </select>
+    </div>
+
+    <!-- Welcome Banner -->
+    <div class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg max-w-md text-center">
+      <h2 class="text-xl font-bold text-indigo-600 dark:text-indigo-400" id="welcomeMessage">Assalomu alaykum MyFinance moliyaviy nazorat ilovasiga xush kelibsiz</h2>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginCard" class="auth-card">
+      <div class="auth-header">
+        <i class="fa-solid fa-wallet text-3xl mb-2"></i>
+        <h1 class="text-2xl font-bold">MyFinance</h1>
+        <p class="mt-1" data-translate="login_subtitle">Hisobingizga kiring</p>
+      </div>
+      <div class="auth-body">
+        <div id="loginAlert" class="alert alert-error hidden"></div>
+        
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginUsername" class="form-label" data-translate="username">Login</label>
+            <input type="text" id="loginUsername" class="form-input" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="loginPassword" class="form-label" data-translate="password">Parol</label>
+            <div class="input-with-icon">
+              <input type="password" id="loginPassword" class="form-input" required>
+              <span class="input-icon password-toggle" data-target="loginPassword">
+                <i class="fa-regular fa-eye"></i>
+              </span>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-primary" data-translate="login_button">Kirish</button>
+        </form>
+      </div>
+      <div class="auth-footer">
+        <p class="text-sm text-gray-600" data-translate="no_account">Hisobingiz yo'qmi?</p>
+        <button id="showRegister" class="text-indigo-600 font-medium text-sm mt-1" data-translate="register_button">Ro'yxatdan o'ting</button>
+        <div class="mt-2">
+          <button id="showForgotPassword" class="text-indigo-600 font-medium text-sm" data-translate="forgot_password">Parolni unutdingizmi?</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Register Form -->
+    <div id="registerCard" class="auth-card hidden">
+      <div class="auth-header">
+        <i class="fa-solid fa-wallet text-3xl mb-2"></i>
+        <h1 class="text-2xl font-bold">MyFinance</h1>
+        <p class="mt-1" data-translate="register_subtitle">Yangi hisob yarating</p>
+      </div>
+      <div class="auth-body">
+        <div id="registerAlert" class="alert alert-error hidden"></div>
+        
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="registerName" class="form-label" data-translate="name">Ism</label>
+            <input type="text" id="registerName" class="form-input" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="registerUsername" class="form-label" data-translate="username">Login</label>
+            <div class="relative">
+              <input type="text" id="registerUsername" class="form-input" required minlength="3" maxlength="20">
+              <div id="registerUsernameStatus" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs hidden"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1" id="registerUsernameSuggestions"></p>
+          </div>
+          
+          <div class="form-group">
+            <label for="registerPhone" class="form-label" data-translate="phone">Telefon raqam</label>
+            <input type="tel" id="registerPhone" class="form-input" required placeholder="+998901234567">
+            <p class="phone-hint" data-translate="phone_format">To'liq formatda kiriting: +998901234567</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="registerPassword" class="form-label" data-translate="password">Parol</label>
+            <div class="input-with-icon">
+              <input type="password" id="registerPassword" class="form-input" required minlength="4" maxlength="10">
+              <span class="input-icon password-toggle" data-target="registerPassword">
+                <i class="fa-regular fa-eye"></i>
+              </span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1" data-translate="password_length">4-10 ta belgi</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="registerConfirmPassword" class="form-label" data-translate="confirm_password">Parolni tasdiqlash</label>
+            <div class="input-with-icon">
+              <input type="password" id="registerConfirmPassword" class="form-input" required>
+              <span class="input-icon password-toggle" data-target="registerConfirmPassword">
+                <i class="fa-regular fa-eye"></i>
+              </span>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-primary" data-translate="register_button">Ro'yxatdan o'tish</button>
+        </form>
+      </div>
+      <div class="auth-footer">
+        <p class="text-sm text-gray-600" data-translate="has_account">Allaqachon hisobingiz bormi?</p>
+        <button id="showLogin" class="text-indigo-600 font-medium text-sm mt-1" data-translate="login_button">Kirish</button>
+      </div>
+    </div>
+
+    <!-- Registration Success -->
+    <div id="successCard" class="auth-card hidden">
+      <div class="auth-header">
+        <i class="fa-solid fa-wallet text-3xl mb-2"></i>
+        <h1 class="text-2xl font-bold">MyFinance</h1>
+      </div>
+      <div class="auth-body">
+        <div class="success-checkmark">
+          <i class="fa-solid fa-check-circle"></i>
+        </div>
+        <h2 class="text-xl font-semibold text-center mb-2" data-translate="registration_success">Muvaffaqiyatli ro'yxatdan o'tdingiz!</h2>
+        <p class="text-center text-gray-600 mb-4" data-translate="login_now">Endi tizimga kiring</p>
+        
+        <button id="goToLogin" class="btn-primary" data-translate="login_button">Kirish</button>
+      </div>
+    </div>
+
+    <!-- Forgot Password Form -->
+    <div id="forgotPasswordCard" class="auth-card hidden">
+      <div class="auth-header">
+        <i class="fa-solid fa-wallet text-3xl mb-2"></i>
+        <h1 class="text-2xl font-bold">MyFinance</h1>
+        <p class="mt-1" data-translate="password_recovery">Parolni tiklash</p>
+      </div>
+      <div class="auth-body">
+        <div id="forgotPasswordAlert" class="alert alert-error hidden"></div>
+        
+        <form id="forgotPasswordForm">
+          <div class="form-group">
+            <label for="forgotPhone" class="form-label" data-translate="phone">Telefon raqam</label>
+            <input type="tel" id="forgotPhone" class="form-input" required placeholder="+998901234567">
+            <p class="phone-hint" data-translate="phone_format">To'liq formatda kiriting: +998901234567</p>
+          </div>
+          
+          <button type="submit" class="btn-primary" data-translate="send_code">Kod yuborish</button>
+        </form>
+      </div>
+      <div class="auth-footer">
+        <button id="showLoginFromForgot" class="text-indigo-600 font-medium text-sm" data-translate="back_to_login">Kirish sahifasiga qaytish</button>
+      </div>
+    </div>
+
+    <!-- Reset Password Form -->
+    <div id="resetPasswordCard" class="auth-card hidden">
+      <div class="auth-header">
+        <i class="fa-solid fa-wallet text-3xl mb-2"></i>
+        <h1 class="text-2xl font-bold">MyFinance</h1>
+        <p class="mt-1" data-translate="set_new_password">Yangi parol o'rnatish</p>
+      </div>
+      <div class="auth-body">
+        <div id="resetPasswordAlert" class="alert alert-error hidden"></div>
+        
+        <form id="resetPasswordForm">
+          <div class="form-group">
+            <label class="form-label" data-translate="phone">Telefon raqam</label>
+            <div class="p-2 bg-gray-100 rounded-lg dark:bg-gray-700" id="resetPhoneDisplay"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="resetUsername" class="form-label" data-translate="select_username">Loginni tanlang</label>
+            <select id="resetUsername" class="form-input dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+              <!-- Loginlar bu yerda JavaScript orqali to'ldiriladi -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="resetCode" class="form-label" data-translate="verification_code">Tasdiqlash kodi</label>
+            <div class="flex gap-2">
+              <input type="text" id="resetCode" class="form-input flex-1" required pattern="[0-9]{5}" maxlength="5" placeholder="12345">
+              <button type="button" id="resendCodeBtn" class="px-3 py-2 border rounded-lg text-sm dark:border-gray-600" data-translate="resend_code">Qayta yuborish</button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="resetPassword" class="form-label" data-translate="new_password">Yangi parol</label>
+            <div class="input-with-icon">
+              <input type="password" id="resetPassword" class="form-input" required minlength="4" maxlength="10">
+              <span class="input-icon password-toggle" data-target="resetPassword">
+                <i class="fa-regular fa-eye"></i>
+              </span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1" data-translate="password_length">4-10 ta belgi</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="resetConfirmPassword" class="form-label" data-translate="confirm_password">Parolni tasdiqlash</label>
+            <div class="input-with-icon">
+              <input type="password" id="resetConfirmPassword" class="form-input" required>
+              <span class="input-icon password-toggle" data-target="resetConfirmPassword">
+                <i class="fa-regular fa-eye"></i>
+              </span>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-primary" data-translate="change_password">Parolni o'zgartirish</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Password Reset Success -->
+    <div id="resetSuccessCard" class="auth-card hidden">
+      <div class="auth-header">
+        <i class="fa-solid fa-wallet text-3xl mb-2"></i>
+        <h1 class="text-2xl font-bold">MyFinance</h1>
+      </div>
+      <div class="auth-body">
+        <div class="success-checkmark">
+          <i class="fa-solid fa-check-circle"></i>
+        </div>
+        <h2 class="text-xl font-semibold text-center mb-2" data-translate="password_changed">Parol muvaffaqiyatli o'zgartirildi!</h2>
+        <p class="text-center text-gray-600 mb-4" data-translate="login_now">Endi tizimga kiring</p>
+        
+        <button id="goToLoginAfterReset" class="btn-primary" data-translate="login_button">Kirish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Shell (hidden by default until login) -->
+  <div id="appShell" class="min-h-screen hidden">
+    <!-- Topbar -->
+    <header class="border-b bg-white/80 backdrop-blur sticky top-0 z-40 dark:bg-[#0dc86f] dark:border-[#0dc86f]">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3 header-title">
+          <div id="headerAvatar" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden dark:bg-gray-700 hidden">
+            <i class="fa-solid fa-user text-gray-400 dark:text-gray-500"></i>
+          </div>
+          <i class="fa-solid fa-wallet text-indigo-600 text-xl dark:text-indigo-400"></i>
+          <h1 class="text-lg font-bold dark:text-black">MyFinance</h1>
+          <span class="text-sm text-gray-500 dark:text-black">| <span id="userGreeting">Salom!</span></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="langSelect" class="px-3 py-1.5 rounded-lg border text-sm">
+            <option value="uz">UZB</option>
+            <option value="en">ENG</option>
+            <option value="ru">RUS</option>
+          </select>
+          
+          <!-- Dark mode toggle (icon only) -->
+          <button id="darkToggle" class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 text-sm dark:border-gray-700 dark:hover:bg-gray-800 dark:text-black">
+            <i class="fa-regular fa-moon dark:hidden"></i>
+            <i class="fa-solid fa-sun hidden dark:block"></i>
+          </button>
+          
+          <!-- Dropdown menu trigger -->
+          <div class="relative">
+            <button id="dropdownTrigger" class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 text-sm dark:border-gray-700 dark:hover:bg-gray-800 dark:text-black">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            
+            <!-- Dropdown menu (hidden by default) -->
+            <div id="dropdownMenu" class="dropdown-menu hidden dark:bg-gray-800 dark:border-gray-700">
+              <div class="dropdown-item" data-goto="profile">
+                <i class="fa-regular fa-user w-4"></i>
+                <span data-translate="profile">Profil</span>
+              </div>
+              <hr class="my-1 border-gray-200 dark:border-gray-700">
+              <div class="dropdown-item" id="dropdownLogout">
+                <i class="fa-solid fa-right-from-bracket w-4"></i>
+                <span data-translate="logout">Chiqish</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      <!-- NAV TABS -->
+      <nav id="main-nav" class="mb-6">
+        <ul class="flex flex-wrap gap-2">
+          <li><button data-goto="dashboard" class="tab-btn px-4 py-2 rounded-xl text-sm transition-colors dark:text-white" data-translate="dashboard">Dashboard</button></li>
+          <li><button data-goto="transactions" class="tab-btn px-4 py-2 rounded-xl text-sm transition-colors dark:text-white" data-translate="transactions">Tranzaksiyalar</button></li>
+          <li><button data-goto="categories" class="tab-btn px-4 py-2 rounded-xl text-sm transition-colors dark:text-white" data-translate="categories">Kategoriyalar</button></li>
+          <li><button data-goto="reports" class="tab-btn px-4 py-2 rounded-xl text-sm transition-colors dark:text-white" data-translate="reports">Hisobotlar</button></li>
+        </ul>
+      </nav>
+
+      <!-- DASHBOARD PAGE -->
+      <section id="dashboard" class="page active">
+        <!-- Greeting + Quick actions -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div>
+            <h2 class="text-xl font-semibold dark:text-white" data-translate="dashboard">Dashboard</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400" data-translate="dashboard_subtitle">Umumiy ko'rsatkichlar va so'nggi faoliyat</p>
+          </div>
+          <div class="flex gap-2">
+            <button id="quickAddIncome" class="px-3 py-2 rounded-xl border hover:bg-gray-50 text-sm dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white">
+              <i class="fa-solid fa-plus"></i> <span data-translate="income">Daromad</span>
+            </button>
+            <button id="quickAddExpense" class="px-3 py-2 rounded-xl border hover:bg-gray-50 text-sm dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white">
+              <i class="fa-solid fa-minus"></i> <span data-translate="expense">Xarajat</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="summaryCards">
+          <div class="p-5 bg-white rounded-2xl border dark:bg-gray-800 dark:border-gray-700">
+            <div class="text-sm text-gray-500 dark:text-gray-400" data-translate="total_income">Jami Daromad</div>
+            <div id="sumIncome" class="text-2xl font-bold mt-1 dark:text-white">0 so'm</div>
+          </div>
+          <div class="p-5 bg-white rounded-2xl border dark:bg-gray-800 dark:border-gray-700">
+            <div class="text-sm text-gray-500 dark:text-gray-400" data-translate="total_expense">Jami Xarajat</div>
+            <div id="sumExpense" class="text-2xl font-bold mt-1 dark:text-white">0 so'm</div>
+          </div>
+          <div class="p-5 bg-white rounded-2xl border dark:bg-gray-800 dark:border-gray-700">
+            <div class="text-sm text-gray-500 dark:text-gray-400" data-translate="balance">Balans</div>
+            <div id="sumBalance" class="text-2xl font-bold mt-1 dark:text-white">0 so'm</div>
+          </div>
+        </div>
+
+        <!-- Daily Highlights -->
+        <div class="bg-white rounded-2xl border p-4 mt-4 dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="font-semibold dark:text-white" data-translate="today_highlights">Bugungi eng yuqori tranzaksiyalar</h3>
+            <div id="dailyHighlightsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                <!-- Daily highlights will be injected here by JS -->
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 gap-4 mt-4">
+  <div class="bg-white rounded-2xl border p-4 dark:bg-gray-800 dark:border-gray-700">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="font-semibold dark:text-white" data-translate="monthly_chart">Oylar bo'yicha Daromad/Xarajat</h3>
+      <select id="chartYear" class="border rounded-lg text-sm px-2 py-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></select>
+    </div>
+    <canvas id="lineChart" class="w-full h-64"></canvas>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-2xl border p-4 dark:bg-gray-800 dark:border-gray-700">
+      <h3 class="font-semibold mb-2 dark:text-white" data-translate="income_by_category">Kategoriya bo'yicha Daromad</h3>
+      <canvas id="pieChartIncome" class="w-full h-64"></canvas>
+    </div>
+    <div class="bg-white rounded-2xl border p-4 dark:bg-gray-800 dark:border-gray-700">
+      <h3 class="font-semibold mb-2 dark:text-white" data-translate="expense_by_category">Kategoriya bo'yicha Xarajat</h3>
+      <canvas id="pieChart" class="w-full h-64"></canvas>
+    </div>
+  </div>
+</div>
+
+        <!-- Recent Transactions -->
+        <div class="bg-white rounded-2xl border p-4 mt-4 dark:bg-gray-800 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold dark:text-white" data-translate="recent_transactions">So'nggi 5 tranzaksiya</h3>
+            <a data-goto="transactions" class="text-sm text-indigo-600 hover:underline cursor-pointer dark:text-indigo-400" data-translate="view_all">Barchasini ko'rish</a>
+          </div>
+          <ul id="recentList" class="mt-3 space-y-2 text-sm"></ul>
+        </div>
+      </section>
+
+      <!-- TRANSACTIONS PAGE -->
+      <section id="transactions" class="page">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-xl font-semibold dark:text-white" data-translate="transactions">Tranzaksiyalar</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400" data-translate="transactions_subtitle">Qo'shish, tahrirlash, qidirish, eksport</p>
+          </div>
+          <div class="flex gap-2">
+            <button id="btnExportCSV" class="px-3 py-2 rounded-xl border text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white" data-translate="export_csv">CSV</button>
+            <button id="btnClearSelected" class="px-3 py-2 rounded-xl border text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white" data-translate="delete_selected">Tanlanganlarni o'chirish</button>
+          </div>
+        </div>
+
+        <!-- Add form -->
+        <form id="txForm" class="bg-white rounded-2xl border p-4 grid md:grid-cols-6 gap-3 mb-4 dark:bg-gray-800 dark:border-gray-700">
+          <select id="txType" class="border rounded-xl px-3 py-2 md:col-span-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option value="income" data-translate="income">Daromad</option>
+            <option value="expense" selected data-translate="expense">Xarajat</option>
+          </select>
+          <input id="txAmount" type="number" min="0" step="1000" class="border rounded-xl px-3 py-2 md:col-span-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required placeholder="Miqdor" data-translate-placeholder="amount">
+          <select id="txCategory" class="border rounded-xl px-3 py-2 md:col-span-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></select>
+          <input id="txNote" type="text" class="border rounded-xl px-3 py-2 md:col-span-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Izoh" data-translate-placeholder="note">
+          <input id="txDate" type="date" class="border rounded-xl px-3 py-2 md:col-span-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+          <button class="bg-indigo-600 text-white rounded-xl px-3 py-2 md:col-span-1 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600" data-translate="add">Qo'shish</button>
+        </form>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-2xl border p-4 mb-3 grid md:grid-cols-4 gap-3 dark:bg-gray-800 dark:border-gray-700">
+          <input id="searchInput" type="text" class="border rounded-xl px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Qidirish" data-translate-placeholder="search">
+          <select id="filterType" class="border rounded-xl px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option value="" data-translate="all_types">Barcha turlari</option>
+            <option value="income" data-translate="income">Daromad</option>
+            <option value="expense" data-translate="expense">Xarajat</option>
+          </select>
+          <input id="filterFrom" type="date" class="border rounded-xl px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" data-translate-placeholder="from">
+          <input id="filterTo" type="date" class="border rounded-xl px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" data-translate-placeholder="to">
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white rounded-2xl border overflow-x-auto dark:bg-gray-800 dark:border-gray-700">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th class="p-3 text-left w-12 dark:text-gray-300"><input type="checkbox" id="checkAll" class="dark:bg-gray-600"></th>
+                <th class="p-3 text-left cursor-pointer sort dark:text-gray-300" data-key="date" data-translate="date">Sana <i class="fa-solid fa-sort text-xs"></i></th>
+                <th class="p-3 text-left cursor-pointer sort dark:text-gray-300" data-key="type" data-translate="type">Tur</th>
+                <th class="p-3 text-left cursor-pointer sort dark:text-gray-300" data-key="category" data-translate="category">Kategoriya</th>
+                <th class="p-3 text-right cursor-pointer sort dark:text-gray-300" data-key="amount" data-translate="amount">Miqdor</th>
+                <th class="p-3 text-left dark:text-gray-300" data-translate="note">Izoh</th>
+                <th class="p-3 text-right dark:text-gray-300" data-translate="action">Amal</th>
+              </tr>
+            </thead>
+            <tbody id="txTbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-3 text-sm">
+          <div>
+            <span id="rowsInfo" class="dark:text-gray-300">0–0 / 0</span>
+          </div>
+          <div class="flex gap-1">
+            <button id="prevPage" class="px-3 py-1.5 border rounded-lg dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white" data-translate="prev">Oldingi</button>
+            <button id="nextPage" class="px-3 py-1.5 border rounded-lg dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white" data-translate="next">Keyingi</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- CATEGORIES PAGE -->
+      <section id="categories" class="page">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-semibold dark:text-white" data-translate="categories">Kategoriyalar</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400" data-translate="categories_subtitle">Yaratish, tahrirlash, o'chirish</p>
+          </div>
+        </div>
+
+        <form id="catForm" class="bg-white rounded-2xl border p-4 flex gap-2 mb-3 dark:bg-gray-800 dark:border-gray-700">
+          <input id="catName" type="text" class="border rounded-xl px-3 py-2 flex-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required placeholder="Kategoriya nomi" data-translate-placeholder="category_name">
+          <button class="bg-indigo-600 text-white rounded-xl px-3 py-2 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600" data-translate="add">Qo'shish</button>
+        </form>
+
+        <div class="bg-white rounded-2xl border p-4 dark:bg-gray-800 dark:border-gray-700">
+          <ul id="catList" class="space-y-2 text-sm"></ul>
+          <p id="noCatsMessage" class="text-center text-gray-500 mt-4 hidden dark:text-gray-400" data-translate="no_categories">Avval kategoriya qo'shing</p>
+        </div>
+      </section>
+
+      <!-- REPORTS PAGE -->
+      <section id="reports" class="page">
+        <div class="flex flex-wrap items-center justify-between mb-4 gap-2">
+          <div>
+            <h2 class="text-xl font-semibold dark:text-white" data-translate="reports">Hisobotlar</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400" data-translate="reports_subtitle">Davr tanlang va natijalarni ko'ring</p>
+          </div>
+          <div class="flex gap-2">
+            <button data-period="day" class="period px-3 py-2 border rounded-lg text-sm dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white active" data-translate="today">Bugun</button>
+            <button data-period="week" class="period px-3 py-2 border rounded-lg text-sm dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white" data-translate="week">Hafta</button>
+            <button data-period="month" class="period px-3 py-2 border rounded-lg text-sm dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white" data-translate="month">Oy</button>
+            <button data-period="year" class="period px-3 py-2 border rounded-lg text-sm dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white" data-translate="year">Yil</button>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-4 gap-3 bg-white rounded-2xl border p-4 mb-4 dark:bg-gray-800 dark:border-gray-700">
+          <div>
+            <label class="text-sm dark:text-gray-300" data-translate="from">Boshlanish</label>
+            <input id="repFrom" type="date" class="border rounded-xl px-3 py-2 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          </div>
+          <div>
+            <label class="text-sm dark:text-gray-300" data-translate="to">Tugash</label>
+            <input id="repTo" type="date" class="border rounded-xl px-3 py-2 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          </div>
+          <div class="md:col-span-2 flex items-end gap-2">
+            <button id="btnGenReport" class="px-3 py-2 bg-indigo-600 text-white rounded-xl dark:bg-indigo-500 dark:hover:bg-indigo-600" data-translate="generate_report">Hisobotni yaratish</button>
+            <button id="btnRepCSV" class="px-3 py-2 border rounded-xl dark:border-gray-700 dark:hover:bg-gray-800 dark:text-white" data-translate="export_csv">CSV</button>
+          </div>
+        </div>
+
+        <div class="reports-grid">
+          <div class="bg-white rounded-2xl border p-4 dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="font-semibold mb-2 dark:text-white" data-translate="general_stats">Umumiy ko'rsatkichlar</h3>
+            <ul class="text-sm space-y-1 dark:text-gray-300">
+              <li data-translate="income">Daromad: <span id="repIncome" class="font-semibold">0</span></li>
+              <li data-translate="expense">Xarajat: <span id="repExpense" class="font-semibold">0</span></li>
+              <li data-translate="balance">Balans: <span id="repBalance" class="font-semibold">0</span></li>
+              <li data-translate="transactions_count">Trans. soni: <span id="repCount" class="font-semibold">0</span></li>
+            </ul>
+            
+            <div class="category-example dark:bg-gray-700">
+              <p class="text-sm font-medium dark:text-gray-300" data-translate="example_category">Masalan: Oziq-ovqat</p>
+              <p class="text-xs text-gray-500 mt-1 dark:text-gray-400" data-translate="add_category_first">Avval kategoriya qo'shing</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl border p-4 dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="font-semibold mb-2 dark:text-white" data-translate="chart">Diagramma</h3>
+            <canvas id="repChart" class="w-full h-64"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE PAGE -->
+      <section id="profile" class="page">
+        <h2 class="text-xl font-semibold mb-4 dark:text-white" data-translate="profile">Profil</h2>
+        
+        <div class="profile-grid">
+          <!-- Ma'lumotlarni tahrirlash -->
+          <div class="bg-white rounded-2xl border p-4 dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="font-semibold mb-4 dark:text-white" data-translate="edit_info">Ma'lumotlarni tahrirlash</h3>
+            
+            <form id="profileForm">
+              <div class="form-group">
+                <label for="profileName" class="form-label dark:text-gray-300" data-translate="name">Ism</label>
+                <input type="text" id="profileName" class="form-input dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="profilePhone" class="form-label dark:text-gray-300" data-translate="phone">Telefon raqam</label>
+                <input type="tel" id="profilePhone" class="form-input dark:bg-gray-700 dark:border-gray-600 dark:text-white" required placeholder="+998901234567" readonly>
+              </div>
+              
+              <div class="form-group">
+                <label for="profileUsername" class="form-label dark:text-gray-300" data-translate="username">Login</label>
+                <div class="relative">
+                  <input type="text" id="profileUsername" class="form-input dark:bg-gray-700 dark:border-gray-600 dark:text-white" required minlength="3" maxlength="20">
+                  <div id="usernameStatus" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs hidden"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1 dark:text-gray-400" id="usernameSuggestions"></p>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label dark:text-gray-300" data-translate="profile_photo">Profil rasmi</label>
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden dark:bg-gray-700" id="avatarPreview">
+                    <i class="fa-solid fa-user text-gray-400 dark:text-gray-500"></i>
+                  </div>
+                  <input type="file" id="profileAvatar" accept="image/*" class="hidden">
+                  <button type="button" id="avatarUploadBtn" class="px-3 py-1.5 border rounded-lg text-sm dark:border-gray-600 dark:hover:bg-gray-700 dark:text-white" data-translate="upload">Yuklash</button>
+                  <button type="button" id="avatarRemoveBtn" class="px-3 py-1.5 border rounded-lg text-sm dark:border-gray-600 dark:hover:bg-gray-700 dark:text-white" data-translate="remove">O'chirish</button>
+                </div>
+              </div>
+              
+              <button type="submit" class="btn-primary mt-4 dark:bg-indigo-500 dark:hover:bg-indigo-600" data-translate="save_changes">O'zgarishlarni saqlash</button>
+            </form>
+          </div>
+          
+          <!-- Parolni o'zgartirish -->
+          <div class="bg-white rounded-2xl border p-4 dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="font-semibold mb-4 dark:text-white" data-translate="change_password">Parolni o'zgartirish</h3>
+            
+            <form id="changePasswordForm">
+              <div class="form-group">
+                <label for="currentPassword" class="form-label dark:text-gray-300" data-translate="current_password">Joriy parol</label>
+                <div class="input-with-icon">
+                  <input type="text" id="currentPassword" class="form-input dark:bg-gray-700 dark:border-gray-600 dark:text-white" required readonly>
+                  <span class="input-icon password-toggle" data-target="currentPassword">
+                    <i class="fa-regular fa-eye"></i>
+                  </span>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="newPassword" class="form-label dark:text-gray-300" data-translate="new_password">Yangi parol</label>
+                <div class="input-with-icon">
+                  <input type="password" id="newPassword" class="form-input dark:bg-gray-700 dark:border-gray-600 dark:text-white" required minlength="4" maxlength="10">
+                  <span class="input-icon password-toggle" data-target="newPassword">
+                    <i class="fa-regular fa-eye"></i>
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1 dark:text-gray-400" data-translate="password_length">4-10 ta belgi</p>
+              </div>
+
+              <div class="form-group">
+                <label for="confirmPassword" class="form-label dark:text-gray-300" data-translate="confirm_password">Yangi parolni takrorlash</label>
+                <div class="input-with-icon">
+                  <input type="password" id="confirmPassword" class="form-input dark:bg-gray-700 dark:border-gray-600 dark:text-white" required minlength="4" maxlength="10">
+                  <span class="input-icon password-toggle" data-target="confirmPassword">
+                    <i class="fa-regular fa-eye"></i>
+                  </span>
+                </div>
+              </div>
+              
+              <button type="submit" class="btn-primary mt-4 dark:bg-indigo-500 dark:hover:bg-indigo-600" data-translate="change_password">Parolni o'zgartirish</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Templates -->
+  <template id="catItemTpl">
+    <li class="flex items-center justify-between p-3 border rounded-xl dark:border-gray-700">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+        <span class="name dark:text-gray-300"></span>
+      </div>
+      <div class="flex gap-2">
+        <button class="edit px-2 py-1 border rounded-lg text-xs dark:border-gray-600 dark:hover:bg-gray-700 dark:text-white" data-translate="edit">Tahrirlash</button>
+        <button class="del px-2 py-1 border rounded-lg text-xs dark:border-gray-600 dark:hover:bg-gray-700 dark:text-white" data-translate="delete">O'chirish</button>
+      </div>
+    </li>
+  </template>
+
+  <!-- App Script -->
+  <script>
+    // ====== API Configuration
+    const API_BASE_URL = 'http://localhost:5000/api';
+    
+    // ====== Storage Keys
+    const SK = {
+      CATS: 'mf_categories',
+      TXS: 'mf_transactions',
+      THEME: 'mf_theme',
+      LANG: 'mf_language',
+      USERS: 'mf_users',
+      CURRENT_USER: 'mf_current_user',
+      PASSWORD_RESET_CODES: 'mf_password_reset_codes',
+      PHONE_TO_USERNAMES: 'mf_phone_to_usernames'
+    };
+
+    // ====== State
+    let currentUser = null;
+    let categories = {};
+    let transactions = {};
+    const pages = ['dashboard','transactions','categories','reports','profile'];
+    
+    let currentLang = localStorage.getItem(SK.LANG) || 'uz';
+    let lineChart=null, pieChart=null, pieChartIncome=null, repChart=null;
+    
+    // ====== API Helpers
+    async function apiRequest(endpoint, options = {}) {
+      try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+          },
+          ...options
+        });
+        
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('API request error:', error);
+        return { 
+          success: false, 
+          message: 'Serverga ulanishda xatolik' 
+        };
+      }
+    }
+
+    // ====== Helpers
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    const toMoney = n => (n||0).toLocaleString('uz-UZ') + " so'm";
+    
+    // ====== Phone number formatting
+    function formatPhoneNumber(input) {
+      // Remove all non-digit characters except '+'
+      let value = input.value.replace(/[^\d+]/g, '');
+      
+      // Ensure it starts with '+'
+      if (!value.startsWith('+')) {
+        value = '+' + value.replace(/\D/g, '');
+      }
+      
+      // Limit to max characters
+      if (value.length > 13) {
+        value = value.slice(0, 13);
+      }
+      
+      input.value = value;
+    }
+    
+    // ====== Translation Function
+    async function translatePage() {
+      const t = translations[currentLang];
+      
+      // Update all elements with data-translate attribute
+      $$('[data-translate]').forEach(el => {
+        const key = el.getAttribute('data-translate');
+        if (t[key]) {
+          el.textContent = t[key];
+        }
+      });
+      
+      // Update placeholders
+      $$('[data-translate-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-translate-placeholder');
+        if (t[key]) {
+          el.placeholder = t[key];
+        }
+      });
+      
+      // Update select options
+      $$('option[data-translate]').forEach(option => {
+        const key = option.getAttribute('data-translate');
+        if (t[key]) {
+          option.textContent = t[key];
+        }
+      });
+      
+      // Update welcome message
+      if (t['welcome_message']) {
+        $('#welcomeMessage').textContent = t['welcome_message'];
+      }
+      
+      // Update user greeting
+      updateUserGreeting();
+    }
+    
+    // ====== Authentication Functions
+    function showAuth() {
+      $('#authContainer').classList.remove('hidden');
+      $('#appShell').classList.add('hidden');
+      switchToLogin();
+    }
+    
+    function hideAuth() {
+      $('#authContainer').classList.add('hidden');
+      $('#appShell').classList.remove('hidden');
+    }
+    
+    function switchToLogin() {
+      $('#loginCard').classList.remove('hidden');
+      $('#registerCard').classList.add('hidden');
+      $('#successCard').classList.add('hidden');
+      $('#forgotPasswordCard').classList.add('hidden');
+      $('#resetPasswordCard').classList.add('hidden');
+      $('#resetSuccessCard').classList.add('hidden');
+      $('#loginAlert').classList.add('hidden');
+    }
+    
+    function switchToRegister() {
+      $('#loginCard').classList.add('hidden');
+      $('#registerCard').classList.remove('hidden');
+      $('#successCard').classList.add('hidden');
+      $('#forgotPasswordCard').classList.add('hidden');
+      $('#resetPasswordCard').classList.add('hidden');
+      $('#resetSuccessCard').classList.add('hidden');
+      $('#registerAlert').classList.add('hidden');
+    }
+    
+    function switchToForgotPassword() {
+      $('#loginCard').classList.add('hidden');
+      $('#registerCard').classList.add('hidden');
+      $('#successCard').classList.add('hidden');
+      $('#forgotPasswordCard').classList.remove('hidden');
+      $('#resetPasswordCard').classList.add('hidden');
+      $('#resetSuccessCard').classList.add('hidden');
+      $('#forgotPasswordAlert').classList.add('hidden');
+    }
+    
+    function switchToResetPassword() {
+      $('#loginCard').classList.add('hidden');
+      $('#registerCard').classList.add('hidden');
+      $('#successCard').classList.add('hidden');
+      $('#forgotPasswordCard').classList.add('hidden');
+      $('#resetPasswordCard').classList.remove('hidden');
+      $('#resetSuccessCard').classList.add('hidden');
+      $('#resetPasswordAlert').classList.add('hidden');
+    }
+    
+    function switchToResetSuccess() {
+      $('#loginCard').classList.add('hidden');
+      $('#registerCard').classList.add('hidden');
+      $('#successCard').classList.add('hidden');
+      $('#forgotPasswordCard').classList.add('hidden');
+      $('#resetPasswordCard').classList.add('hidden');
+      $('#resetSuccessCard').classList.remove('hidden');
+    }
+    
+    function showSuccess() {
+      $('#loginCard').classList.add('hidden');
+      $('#registerCard').classList.add('hidden');
+      $('#successCard').classList.remove('hidden');
+      $('#forgotPasswordCard').classList.add('hidden');
+      $('#resetPasswordCard').classList.add('hidden');
+      $('#resetSuccessCard').classList.add('hidden');
+    }
+    
+    async function loginUser(username, password) {
+      const result = await apiRequest('/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password })
+      });
+      
+      if (!result.success) {
+        $('#loginAlert').textContent = result.message;
+        $('#loginAlert').classList.remove('hidden');
+        
+        // 3 soniyadan keyin xabarni yashirish
+        setTimeout(() => {
+          $('#loginAlert').classList.add('hidden');
+        }, 3000);
+        
+        return false;
+      }
+      
+      currentUser = result.user;
+      localStorage.setItem(SK.CURRENT_USER, JSON.stringify(currentUser));
+      
+      // Foydalanuvchi ma'lumotlarini yuklash
+      await loadUserData();
+      
+      hideAuth();
+      refreshAll();
+      updateUserGreeting();
+      return true;
+    }
+    
+    async function registerUser(name, username, phone, password) {
+      const result = await apiRequest('/register', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          name, 
+          username, 
+          phone, 
+          password, 
+          confirm_password: $('#registerConfirmPassword').value 
+        })
+      });
+      
+      if (!result.success) {
+        $('#registerAlert').textContent = result.message;
+        $('#registerAlert').classList.remove('hidden');
+        return false;
+      }
+      
+      showSuccess();
+      return true;
+    }
+    
+    async function loadUserData() {
+      if (!currentUser) return;
+      
+      // Kategoriyalarni yuklash
+      const categoriesResult = await apiRequest(`/categories?username=${currentUser.username}`);
+      if (categoriesResult.success) {
+        categories[currentUser.username] = categoriesResult.categories;
+      }
+      
+      // Tranzaksiyalarni yuklash
+      const transactionsResult = await apiRequest(`/transactions?username=${currentUser.username}`);
+      if (transactionsResult.success) {
+        transactions[currentUser.username] = transactionsResult.transactions;
+      }
+    }
+    
+    function logoutUser() {
+      currentUser = null;
+      localStorage.removeItem(SK.CURRENT_USER);
+      showAuth();
+    }
+    
+    function updateUserGreeting() {
+      if (currentUser) {
+        const t = translations[currentLang];
+        $('#userGreeting').textContent = `${t.greeting}, ${currentUser.name}!`;
+        
+        // Update current password field
+        $('#currentPassword').value = currentUser.password;
+        
+        // Profil rasmini ko'rsatish
+        const headerAvatar = $('#headerAvatar');
+        if (currentUser.avatar) {
+          headerAvatar.classList.remove('hidden');
+          headerAvatar.innerHTML = '';
+          const img = document.createElement('img');
+          img.src = currentUser.avatar;
+          img.classList.add('w-full', 'h-full', 'object-cover', 'header-avatar');
+          headerAvatar.appendChild(img);
+        } else {
+          headerAvatar.classList.add('hidden');
+        }
+      }
+    }
+    
+    // ====== Password Visibility Toggle
+    function setupPasswordToggles() {
+      $$('.password-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+          const targetId = this.getAttribute('data-target');
+          const input = $(`#${targetId}`);
+          const icon = this.querySelector('i');
+          
+          if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+          } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+          }
+        });
+      });
+    }
+    
+    // ====== Profile Functions
+    function fillProfileData() {
+      if (!currentUser) return;
+      
+      $('#profileName').value = currentUser.name;
+      $('#profilePhone').value = currentUser.phone;
+      $('#profileUsername').value = currentUser.username;
+      
+      // Avatar mavjud bo'lsa ko'rsatish
+      const avatarPreview = $('#avatarPreview');
+      if (currentUser.avatar) {
+        avatarPreview.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = currentUser.avatar;
+        img.classList.add('w-full', 'h-full', 'object-cover');
+        avatarPreview.appendChild(img);
+      } else {
+        avatarPreview.innerHTML = '<i class="fa-solid fa-user text-gray-400 dark:text-gray-500"></i>';
+      }
+      
+      // Login tekshirish
+      checkUsernameAvailability(currentUser.username, true);
+    }
+    
+    // Login mavjudligini tekshirish
+    async function checkUsernameAvailability(username, isCurrentUser = false) {
+      const statusElement = $('#usernameStatus');
+      const suggestionsElement = $('#usernameSuggestions');
+      
+      if (!username || username.length < 3) {
+        statusElement.classList.add('hidden');
+        suggestionsElement.textContent = '';
+        return;
+      }
+      
+      // Agar bu joriy foydalanuvchining logini bo'lsa, tekshirmaymiz
+      if (isCurrentUser && username === currentUser.username) {
+        statusElement.classList.remove('hidden');
+        statusElement.classList.remove('text-red-600', 'text-green-600');
+        statusElement.textContent = '';
+        suggestionsElement.textContent = '';
+        return;
+      }
+      
+      // Login bandligini tekshirish
+      const usersResult = await apiRequest(`/users?username=${username}`);
+      if (usersResult.success && usersResult.user && username !== currentUser?.username) {
+        statusElement.classList.remove('hidden');
+        statusElement.classList.remove('text-green-600');
+        statusElement.classList.add('text-red-600');
+        statusElement.textContent = 'Bu login band';
+        
+        // Taklif etilgan loginlar
+        const suggestions = generateUsernameSuggestions(username);
+        suggestionsElement.innerHTML = `<span class="text-gray-600 dark:text-gray-400">Taklif etilgan loginlar: </span> ${suggestions.join(', ')}`;
+      } else {
+        statusElement.classList.remove('hidden');
+        statusElement.classList.remove('text-red-600');
+        statusElement.classList.add('text-green-600');
+        statusElement.textContent = 'Bu login band qilinmagan';
+        suggestionsElement.textContent = '';
+      }
+    }
+    
+    // Taklif etilgan loginlar generatsiya qilish
+    function generateUsernameSuggestions(baseUsername) {
+      const suggestions = [];
+      const suffixes = ['123', '2024', '01', '22', 'abc', '007', '99', 'pro', 'user'];
+      
+      for (let i = 0; i < 3; i++) {
+        let suggestion = baseUsername;
+        
+        // Har bir taklifga turli suffix qo'shamiz
+        if (i < suffixes.length) {
+          suggestion += suffixes[i];
+        } else {
+          suggestion += Math.floor(Math.random() * 100);
+        }
+        
+        // Agar bu login band bo'lmasa, taklif qilamiz
+        suggestions.push(suggestion);
+        
+        // 3 ta taklif yetarli
+        if (suggestions.length >= 3) break;
+      }
+      
+      return suggestions;
+    }
+    
+    // ====== Password Reset Functions
+    // 5 xonali tasdiqlash kodi yaratish
+    function generateVerificationCode() {
+      return Math.floor(10000 + Math.random() * 90000).toString();
+    }
+    
+    // Tasdiqlash kodi yuborish (simulyatsiya)
+    function sendVerificationCode(phone, code) {
+      console.log(`Tasdiqlash kodi ${phone} raqamiga yuborildi: ${code}`);
+      // Haqiqiy SMS xizmati o'rniga konsolga chiqaramiz
+      alert(`Tasdiqlash kodi yuborildi: ${code}`);
+    }
+    
+    // Parolni tiklash uchun kod yuborish
+    async function sendPasswordResetCode(phone) {
+      const result = await apiRequest('/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ phone })
+      });
+      
+      if (!result.success) {
+        $('#forgotPasswordAlert').textContent = result.message;
+        $('#forgotPasswordAlert').classList.remove('hidden');
+        return false;
+      }
+      
+      // Reset sahifasiga loginlarni to'ldirish
+      const select = $('#resetUsername');
+      select.innerHTML = '';
+      result.usernames.forEach(username => {
+        const option = document.createElement('option');
+        option.value = username;
+        option.textContent = username;
+        select.appendChild(option);
+      });
+      
+      return true;
+    }
+    
+    // Parolni yangilash
+    async function resetPassword(phone, username, newPassword) {
+      const result = await apiRequest('/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          phone,
+          username,
+          code: $('#resetCode').value,
+          new_password: newPassword
+        })
+      });
+      
+      if (!result.success) {
+        $('#resetPasswordAlert').textContent = result.message;
+        $('#resetPasswordAlert').classList.remove('hidden');
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // ====== Initialize Authentication
+    function initAuth() {
+      // Check if user is already logged in
+      const savedUser = localStorage.getItem(SK.CURRENT_USER);
+      if (savedUser) {
+        try {
+          currentUser = JSON.parse(savedUser);
+          hideAuth();
+          updateUserGreeting();
+          loadUserData().then(() => {
+            refreshAll();
+          });
+        } catch (e) {
+          console.error("Error parsing user data:", e);
+          showAuth();
+        }
+      } else {
+        showAuth();
+      }
+      
+      // Setup event listeners
+      $('#showRegister').addEventListener('click', switchToRegister);
+      $('#showLogin').addEventListener('click', switchToLogin);
+      $('#showForgotPassword').addEventListener('click', switchToForgotPassword);
+      $('#showLoginFromForgot').addEventListener('click', switchToLogin);
+      $('#goToLoginAfterReset').addEventListener('click', switchToLogin);
+      
+      $('#loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await loginUser($('#loginUsername').value, $('#loginPassword').value);
+      });
+      
+      $('#registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const phone = $('#registerPhone').value;
+        await registerUser(
+          $('#registerName').value,
+          $('#registerUsername').value,
+          phone,
+          $('#registerPassword').value
+        );
+      });
+      
+      // Register username validation
+      $('#registerUsername').addEventListener('input', function() {
+        const username = this.value;
+        const statusElement = $('#registerUsernameStatus');
+        const suggestionsElement = $('#registerUsernameSuggestions');
+        
+        if (!username || username.length < 3) {
+          statusElement.classList.add('hidden');
+          suggestionsElement.textContent = '';
+          return;
+        }
+        
+        // Login bandligini tekshirish
+        checkUsernameAvailability(username);
+      });
+      
+      // Phone number formatting
+      $('#registerPhone').addEventListener('input', function() {
+        formatPhoneNumber(this);
+      });
+      
+      $('#forgotPhone').addEventListener('input', function() {
+        formatPhoneNumber(this);
+      });
+      
+      $('#goToLogin').addEventListener('click', function() {
+        switchToLogin();
+        // Clear register form
+        $('#registerForm').reset();
+      });
+      
+      $('#dropdownLogout').addEventListener('click', logoutUser);
+      
+      // Parolni tiklash formasi
+      $('#forgotPasswordForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const phone = $('#forgotPhone').value;
+        
+        if (await sendPasswordResetCode(phone)) {
+          $('#resetPhoneDisplay').textContent = phone;
+          switchToResetPassword();
+        }
+      });
+      
+      // Kodni qayta yuborish
+      $('#resendCodeBtn').addEventListener('click', async function() {
+        const phone = $('#resetPhoneDisplay').textContent;
+        await sendPasswordResetCode(phone);
+        notify('Tasdiqlash kodi yuborildi');
+      });
+      
+      // Parolni tiklash formasi
+      $('#resetPasswordForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const phone = $('#resetPhoneDisplay').textContent;
+        const username = $('#resetUsername').value;
+        const password = $('#resetPassword').value;
+        const confirmPassword = $('#resetConfirmPassword').value;
+        
+        if (password !== confirmPassword) {
+          $('#resetPasswordAlert').textContent = 'Parollar mos kelmadi';
+          $('#resetPasswordAlert').classList.remove('hidden');
+          return;
+        }
+        
+        if (await resetPassword(phone, username, password)) {
+          switchToResetSuccess();
+        }
+      });
+      
+      // Profil formasi
+      $('#profileForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const name = $('#profileName').value;
+        const username = $('#profileUsername').value;
+        
+        // Login bandligini tekshirish (agar o'zgartirilgan bo'lsa)
+        if (username !== currentUser.username) {
+          const usersResult = await apiRequest(`/users?username=${username}`);
+          if (usersResult.success && usersResult.user) {
+            notify('Bu login allaqachon mavjud', 'err');
+            return;
+          }
+        }
+        
+        // Ma'lumotlarni yangilash
+        const result = await apiRequest('/profile', {
+          method: 'PUT',
+          body: JSON.stringify({
+            username: currentUser.username,
+            new_username: username !== currentUser.username ? username : undefined,
+            name: name,
+            phone: $('#profilePhone').value
+          })
+        });
+        
+        if (result.success) {
+          currentUser = result.user;
+          localStorage.setItem(SK.CURRENT_USER, JSON.stringify(currentUser));
+          notify('Profil ma\'lumotlari yangilandi');
+          updateUserGreeting();
+        } else {
+          notify(result.message, 'err');
+        }
+      });
+      
+      // Parolni o'zgartirish formasi
+      $('#changePasswordForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const currentPassword = $('#currentPassword').value;
+        const newPassword = $('#newPassword').value;
+        const confirmPassword = $('#confirmPassword').value;
+        
+        if (newPassword !== confirmPassword) {
+          notify('Yangi parol va tasdiqlash mos kelmadi', 'err');
+          return;
+        }
+        
+        if (currentUser.password !== currentPassword) {
+          notify('Noto\'g\'ri joriy parol', 'err');
+          return;
+        }
+        
+        // Backendda parolni yangilash
+        const result = await apiRequest('/reset-password', {
+          method: 'POST',
+          body: JSON.stringify({
+            phone: currentUser.phone,
+            username: currentUser.username,
+            code: "00000", // Profil sozlamalarida kod kerak emas
+            new_password: newPassword
+          })
+        });
+        
+        if (result.success) {
+          currentUser.password = newPassword;
+          localStorage.setItem(SK.CURRENT_USER, JSON.stringify(currentUser));
+          notify('Parol muvaffaqiyatli o\'zgartirildi');
+          $('#changePasswordForm').reset();
+          $('#currentPassword').value = newPassword;
+        } else {
+          notify(result.message, 'err');
+        }
+      });
+      
+      // Avatar yuklash
+      $('#avatarUploadBtn').addEventListener('click', function() {
+        $('#profileAvatar').click();
+      });
+      
+      // Avatar o'chirish
+      $('#avatarRemoveBtn').addEventListener('click', function() {
+        if (currentUser.avatar) {
+          delete currentUser.avatar;
+          localStorage.setItem(SK.CURRENT_USER, JSON.stringify(currentUser));
+          
+          const avatarPreview = $('#avatarPreview');
+          avatarPreview.innerHTML = '<i class="fa-solid fa-user text-gray-400 dark:text-gray-500"></i>';
+          
+          // Sarlavhadagi rasmini yangilash
+          updateUserGreeting();
+          notify('Profil rasmi o\'chirildi');
+        }
+      });
+      
+      $('#profileAvatar').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const avatarPreview = $('#avatarPreview');
+          avatarPreview.innerHTML = '';
+          const img = document.createElement('img');
+          img.src = event.target.result;
+          img.classList.add('w-full', 'h-full', 'object-cover');
+          avatarPreview.appendChild(img);
+          
+          // Avatar ni saqlash
+          currentUser.avatar = event.target.result;
+          localStorage.setItem(SK.CURRENT_USER, JSON.stringify(currentUser));
+          
+          // Sarlavhadagi rasmini yangilash
+          updateUserGreeting();
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      // Login tekshirish
+      $('#profileUsername').addEventListener('input', function() {
+        checkUsernameAvailability(this.value);
+      });
+      
+      // Dropdown menu
+      $('#dropdownTrigger').addEventListener('click', function(e) {
+        e.stopPropagation();
+        $('#dropdownMenu').classList.toggle('hidden');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!$('#dropdownMenu').contains(e.target) && e.target !== $('#dropdownTrigger')) {
+          $('#dropdownMenu').classList.add('hidden');
+        }
+      });
+      
+      // Dropdown menu items
+      $$('#dropdownMenu .dropdown-item').forEach(item => {
+        if (item.dataset.goto) {
+          item.addEventListener('click', () => {
+            goto(item.dataset.goto);
+            $('#dropdownMenu').classList.add('hidden');
+          });
+        }
+      });
+      
+      // Settings sahifasiga o'tganda profil ma'lumotlarini to'ldirish
+      const profileObserver = new MutationObserver(() => {
+        if ($('#profile').classList.contains('active')) {
+          fillProfileData();
+        }
+      });
+      profileObserver.observe(document.getElementById('profile'), { attributes: true });
+      
+      setupPasswordToggles();
+    }
+    
+    // Modify userTx and userCats functions to use username instead of phone
+    function userTx() { 
+      return currentUser ? (transactions[currentUser.username] || []).slice() : []; 
+    }
+    
+    function userCats() { 
+      return currentUser ? (categories[currentUser.username] || []).slice() : []; 
+    }
+    
+    // ====== Theme (Dark/Light)
+    function applyTheme(){
+      const t = localStorage.getItem(SK.THEME) || 'light';
+      const body = document.getElementById('body');
+      
+      // Apply base dark mode classes
+      if (t === 'dark') {
+        body.classList.add('dark-mode');
+        $('#darkSwitch').checked = true;
+      } else {
+        body.classList.remove('dark-mode');
+        $('#darkSwitch').checked = false;
+      }
+      
+      // Special case for nav buttons
+      updateActiveNav();
+    }
+
+    $('#darkToggle').addEventListener('click', ()=>{
+      const t = localStorage.getItem(SK.THEME)==='dark'?'light':'dark';
+      localStorage.setItem(SK.THEME, t); 
+      applyTheme();
+    });
+    
+    $('#darkSwitch')?.addEventListener('change', (e)=>{
+      localStorage.setItem(SK.THEME, e.target.checked?'dark':'light'); 
+      applyTheme();
+    });
+    
+    // ====== Navigation
+    function updateActiveNav(){
+      const current = $('.page.active');
+      const pageId = current ? current.id : 'dashboard';
+      $$('.tab-btn').forEach(btn => {
+        const isActive = btn.dataset.goto === pageId;
+        const isDark = localStorage.getItem(SK.THEME) === 'dark';
+        btn.classList.remove('bg-indigo-600', 'bg-white', 'text-white', 'border', 'hover:bg-gray-50', 'hover:bg-gray-700', 'bg-gray-900', 'border-gray-800', 'text-gray-100');
+        if (isActive) {
+          btn.classList.add('bg-indigo-600', 'text-white');
+        } else if (isDark) {
+            btn.classList.add('bg-gray-900', 'border-gray-800', 'text-gray-100', 'hover:bg-gray-700');
+        } else {
+            btn.classList.add('bg-white', 'border', 'hover:bg-gray-50');
+        }
+      });
+    }
+
+    function saveAll(){
+      localStorage.setItem(SK.CURRENT_USER, JSON.stringify(currentUser));
+    }
+
+    function goto(page){
+      pages.forEach(p => {
+        const el = document.getElementById(p);
+        el.classList.toggle('active', p === page);
+      });
+      updateActiveNav();
+      if(page === 'reports') {
+        quickPeriod('day');
+        genReport();
+      }
+      refreshAll();
+    }
+    
+    $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => goto(btn.dataset.goto)));
+
+    function notify(msg, type='info'){
+      const wrap = document.createElement('div');
+      wrap.className = `fixed left-1/2 -translate-x-1/2 top-4 z-[100]`;
+      wrap.innerHTML = `<div class="px-4 py-2 rounded-xl shadow text-sm ${type==='err'?'bg-red-600 text-white':'bg-gray-900 text-white'}">${msg}</div>`;
+      document.body.appendChild(wrap);
+      setTimeout(()=>wrap.remove(), 2200);
+    }
+
+    // ====== Dashboard Logic
+    function refreshAll(){
+      fillCategoriesSelects();
+      calcSummaryCards();
+      buildDashboardCharts();
+      fillRecent();
+      fillYearOptions();
+      renderTable();
+      renderDailyHighlights();
+      applyTheme(); // Re-apply theme for new elements
+    }
+
+    function calcSummaryCards(){
+      const list = userTx();
+      const inc = list.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);
+      const exp = list.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0);
+      $('#sumIncome').textContent = toMoney(inc);
+      $('#sumExpense').textContent = toMoney(exp);
+      $('#sumBalance').textContent = toMoney(inc-exp);
+    }
+
+    function fillYearOptions(){
+      const sel = $('#chartYear');
+      const years = [...new Set(userTx().map(t=> new Date(t.date).getFullYear()))];
+      const cur = new Date().getFullYear();
+      if(!years.includes(cur)) years.push(cur);
+      years.sort((a,b)=>b-a);
+      sel.innerHTML = years.map(y=>`<option ${y===cur?'selected':''}>${y}</option>`).join('');
+    }
+
+    function sumByMonth(year, type){
+      const arr = new Array(12).fill(0);
+      userTx().forEach(t=>{
+        const d = new Date(t.date);
+        if(d.getFullYear()===year && (!type || t.type===type)){
+          arr[d.getMonth()] += t.amount;
+        }
+      });
+      return arr;
+    }
+
+    function buildDashboardCharts(){
+      const year = parseInt($('#chartYear').value || new Date().getFullYear());
+      const months = ['Yan','Fev','Mar','Apr','May','Iyun','Iyul','Avg','Sen','Okt','Noy','Dek'];
+      // Line chart
+      const ctx1 = document.getElementById('lineChart').getContext('2d');
+      if(lineChart) lineChart.destroy();
+      lineChart = new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            { label: 'Daromad', data: sumByMonth(year,'income'), tension: .3, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)' },
+            { label: 'Xarajat', data: sumByMonth(year,'expense'), tension: .3, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' }
+          ]
+        },
+        options: { responsive:true, plugins:{ legend:{ position:'bottom', labels: { color: localStorage.getItem(SK.THEME)==='dark' ? '#f3f4f6' : '#1f2937' } } } }
+      });
+
+      // Pie chart (expense by category)
+      const byCatExpense = {};
+      userTx().filter(t=>t.type==='expense').forEach(t=>{ byCatExpense[t.category] = (byCatExpense[t.category]||0)+t.amount; });
+      const ctx2 = document.getElementById('pieChart').getContext('2d');
+      if(pieChart) pieChart.destroy();
+      pieChart = new Chart(ctx2, {
+        type: 'pie',
+        data: { labels: Object.keys(byCatExpense), datasets:[{ data:Object.values(byCatExpense), backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1'] }] },
+        options: { responsive:true, plugins:{ legend:{ position:'bottom', labels: { color: localStorage.getItem(SK.THEME)==='dark' ? '#f3f4f6' : '#1f2937' } } } }
+      });
+
+      // Pie chart (income by category)
+      const byCatIncome = {};
+      userTx().filter(t=>t.type==='income').forEach(t=>{ byCatIncome[t.category] = (byCatIncome[t.category]||0)+t.amount; });
+      const ctx3 = document.getElementById('pieChartIncome').getContext('2d');
+      if(pieChartIncome) pieChartIncome.destroy();
+      pieChartIncome = new Chart(ctx3, {
+        type: 'pie',
+        data: { labels: Object.keys(byCatIncome), datasets:[{ data:Object.values(byCatIncome), backgroundColor: ['#10b981', '#22c55e', '#84cc16', '#eab308', '#f59e0b', '#f97316', '#ef4444', '#dc2626', '#b91c1c', '#991b1b', '#7f1d1d', '#450a0a'] }] },
+        options: { responsive:true, plugins:{ legend:{ position:'bottom', labels: { color: localStorage.getItem(SK.THEME)==='dark' ? '#f3f4f6' : '#1f2937' } } } }
+      });
+    }
+
+    $('#chartYear').addEventListener('change', buildDashboardCharts);
+
+    function fillRecent(){
+      const list = userTx().sort((a,b)=> new Date(b.date)- new Date(a.date)).slice(0,5);
+      const ul = $('#recentList');
+      ul.innerHTML = list.map(t=>`<li class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="chip ${t.type==='income'?'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300':'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'}">${t.type==='income'?'Daromad':'Xarajat'}</span>
+          <span class="text-gray-500 dark:text-gray-400">${new Date(t.date).toLocaleDateString('uz-UZ')}</span>
+          <span class="font-medium dark:text-gray-300">${t.category||'-'}</span>
+          <span class="text-gray-500 dark:text-gray-400">${t.note||''}</span>
+        </div>
+        <div class="font-semibold dark:text-gray-300">${toMoney(t.amount)}</div>
+      </li>`).join('');
+    }
+
+    function renderDailyHighlights(){
+      const today = new Date().toISOString().slice(0, 10);
+      const dailyTx = userTx().filter(t => t.date === today);
+
+      let highestIncome = {amount: 0, note: '', category: ''};
+      let highestExpense = {amount: 0, note: '', category: ''};
+
+      dailyTx.forEach(t => {
+        if (t.type === 'income' && t.amount > highestIncome.amount) {
+          highestIncome = t;
+        }
+        if (t.type === 'expense' && t.amount > highestExpense.amount) {
+          highestExpense = t;
+        }
+      });
+
+      const highlightsContainer = $('#dailyHighlightsContainer');
+      let content = '';
+
+      const isDark = localStorage.getItem(SK.THEME) === 'dark';
+      const incomeBg = isDark ? 'bg-emerald-900/40' : 'bg-emerald-50/50';
+      const expenseBg = isDark ? 'bg-red-900/40' : 'bg-red-50/50';
+
+      if (highestIncome.amount > 0) {
+        content += `
+          <div class="p-4 rounded-xl border ${incomeBg} dark:border-gray-700">
+            <h4 class="text-sm font-medium text-emerald-700 dark:text-emerald-300">Eng yuqori daromad</h4>
+            <div class="text-xl font-bold mt-1 dark:text-white">${toMoney(highestIncome.amount)}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">${highestIncome.category}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">${highestIncome.note || '-'}</div>
+          </div>
+        `;
+      }
+      
+      if (highestExpense.amount > 0) {
+        content += `
+          <div class="p-4 rounded-xl border ${expenseBg} dark:border-gray-700">
+            <h4 class="text-sm font-medium text-red-700 dark:text-red-300">Eng yuqori xarajat</h4>
+            <div class="text-xl font-bold mt-1 dark:text-white">${toMoney(highestExpense.amount)}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">${highestExpense.category}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">${highestExpense.note || '-'}</div>
+          </div>
+        `;
+      }
+
+      if (content === '') {
+        content = `<p class="text-center text-gray-500 dark:text-gray-400">Bugun tranzaksiyalar yo'q</p>`;
+      }
+
+      highlightsContainer.innerHTML = content;
+      applyTheme(); // Re-apply theme to new elements
+    }
+
+    function fillCategoriesSelects(){
+      const cats = userCats();
+      $('#txCategory').innerHTML = cats.map(c=>`<option>${c}</option>`).join('');
+      if(!cats.length){ $('#txCategory').innerHTML = `<option disabled>Avval kategoriya qo'shing</option>`; }
+    }
+
+    // Quick add income/expense
+    $('#quickAddIncome').addEventListener('click', ()=>{
+      goto('transactions');
+      $('#txType').value = 'income';
+      $('#txAmount').focus();
+    });
+    $('#quickAddExpense').addEventListener('click', ()=>{
+      goto('transactions');
+      $('#txType').value = 'expense';
+      $('#txAmount').focus();
+    });
+
+    // ====== Transactions Logic
+    let sortKey = 'date';
+    let sortDir = 'desc';
+    let page = 1; const pageSize = 8;
+    const selected = new Set();
+
+    function filteredTx(){
+      const q = $('#searchInput').value.toLowerCase();
+      const type = $('#filterType').value;
+      const from = $('#filterFrom').value ? new Date($('#filterFrom').value) : null;
+      const to = $('#filterTo').value ? new Date($('#filterTo').value) : null;
+      return userTx().filter(t=>{
+        if(type && t.type!==type) return false;
+        if(from && new Date(t.date) < from) return false;
+        if(to && new Date(t.date) > to) return false;
+        const hay = (t.category+' '+(t.note||'')).toLowerCase();
+        if(q && !hay.includes(q)) return false;
+        return true;
+      }).sort((a,b)=>{
+        let va=a[sortKey], vb=b[sortKey];
+        if(sortKey==='amount') { return sortDir==='asc'? va-vb : vb-va; }
+        if(sortKey==='date') { return sortDir==='asc'? new Date(va)- new Date(vb) : new Date(vb)- new Date(va); }
+        return sortDir==='asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+      });
+    }
+
+    function renderTable(){
+      const list = filteredTx();
+      const total = list.length; const pages = Math.max(1, Math.ceil(total/pageSize));
+      if(page>pages) page=pages;
+      const start = (page-1)*pageSize, end = Math.min(start+pageSize, total);
+      $('#rowsInfo').textContent = `${total?start+1:0}–${end} / ${total}`;
+
+      const view = list.slice(start,end);
+      const tbody = $('#txTbody');
+      tbody.innerHTML = view.map(t=>`
+        <tr class="border-t dark:border-gray-700">
+          <td class="p-3"><input type="checkbox" class="row-check dark:bg-gray-600" data-id="${t.id}" ${selected.has(t.id)?'checked':''}></td>
+          <td class="p-3 dark:text-gray-300">${new Date(t.date).toLocaleDateString('uz-UZ')}</td>
+          <td class="p-3 dark:text-gray-300">${t.type==='income'?'Daromad':'Xarajat'}</td>
+          <td class="p-3 dark:text-gray-300">${t.category||'-'}</td>
+          <td class="p-3 text-right font-medium dark:text-gray-300">${toMoney(t.amount)}</td>
+          <td class="p-3 dark:text-gray-300">${t.note||''}</td>
+          <td class="p-3 text-right">
+            <button class="editRow px-2 py-1 border rounded-lg text-xs dark:border-gray-600 dark:hover:bg-gray-700 dark:text-white" data-id="${t.id}">Tahrirlash</button>
+            <button class="delRow px-2 py-1 border rounded-lg text-xs dark:border-gray-600 dark:hover:bg-gray-700 dark:text-white" data-id="${t.id}">O'chirish</button>
+          </td>
+        </tr>
+      `).join('');
+
+      $$('#txTbody .editRow').forEach(b=> b.addEventListener('click', ()=> editRow(b.getAttribute('data-id'))));
+      $$('#txTbody .delRow').forEach(b=> b.addEventListener('click', ()=> delRow(b.getAttribute('data-id'))));
+      $$('#txTbody .row-check').forEach(ch=> ch.addEventListener('change', ()=>{
+        const id = ch.getAttribute('data-id');
+        ch.checked? selected.add(id) : selected.delete(id);
+        $('#checkAll').checked = selected.size && selected.size === filteredTx().slice((page-1)*pageSize, (page-1)*pageSize+pageSize).length;
+      }));
+      $('#checkAll').checked = false;
+      applyTheme(); // Re-apply theme for new elements
+    }
+
+    function editRow(id){
+      const list = transactions[currentUser.username];
+      const i = list.findIndex(x=> String(x.id)===String(id));
+      if(i<0) return;
+      const t = list[i];
+      $('#txType').value = t.type;
+      $('#txAmount').value = t.amount;
+      $('#txCategory').value = t.category;
+      $('#txNote').value = t.note||'';
+      $('#txDate').value = t.date;
+      $('#txForm button').textContent = 'Tahrirlash';
+      $('#txForm').dataset.edit = String(t.id);
+      goto('transactions');
+    }
+
+    async function delRow(id){
+      if(!confirm('O\'chirasizmi?')) return;
+      
+      const result = await apiRequest(`/transactions/${id}?username=${currentUser.username}`, {
+        method: 'DELETE'
+      });
+      
+      if (result.success) {
+        // Local state yangilash
+        const list = transactions[currentUser.username] || [];
+        transactions[currentUser.username] = list.filter(x => String(x.id) !== String(id));
+        
+        renderTable(); 
+        calcSummaryCards(); 
+        buildDashboardCharts(); 
+        fillRecent(); 
+        renderDailyHighlights();
+        notify('Tranzaksiya o\'chirildi');
+      } else {
+        notify(result.message, 'err');
+      }
+    }
+
+    $('#btnClearSelected').addEventListener('click', async ()=>{
+      if(!selected.size) return notify('Hech narsa tanlanmagan');
+      
+      // Har bir tanlangan tranzaksiyani o'chirish
+      for (const id of selected) {
+        const result = await apiRequest(`/transactions/${id}?username=${currentUser.username}`, {
+          method: 'DELETE'
+        });
+        
+        if (!result.success) {
+          notify(`${id} ID li tranzaksiyani o'chirishda xatolik`, 'err');
+        }
+      }
+      
+      // Local state yangilash
+      const list = transactions[currentUser.username] || [];
+      transactions[currentUser.username] = list.filter(x => !selected.has(String(x.id)));
+      
+      selected.clear(); 
+      renderTable(); 
+      calcSummaryCards(); 
+      buildDashboardCharts(); 
+      fillRecent(); 
+      renderDailyHighlights();
+      notify('Tanlanganlar o\'chirildi');
+    });
+
+    $('#txForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const rec = {
+        id: $('#txForm').dataset.edit ? $('#txForm').dataset.edit : Date.now(),
+        type: $('#txType').value,
+        amount: Number($('#txAmount').value||0),
+        category: $('#txCategory').value,
+        note: $('#txNote').value.trim(),
+        date: $('#txDate').value || new Date().toISOString().slice(0,10)
+      };
+      
+      if(!rec.amount) return notify('Miqdor kiriting','err');
+      
+      let result;
+      if($('#txForm').dataset.edit){
+        // Edit existing transaction
+        result = await apiRequest(`/transactions/${rec.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            username: currentUser.username,
+            ...rec
+          })
+        });
+      } else {
+        // Add new transaction
+        result = await apiRequest('/transactions', {
+          method: 'POST',
+          body: JSON.stringify({
+            username: currentUser.username,
+            ...rec
+          })
+        });
+      }
+      
+      if (result.success) {
+        if($('#txForm').dataset.edit){
+          $('#txForm').dataset.edit='';
+          $('#txForm button').textContent = 'Qo\'shish';
+          notify('Tranzaksiya yangilandi');
+        } else {
+          notify('Tranzaksiya qo\'shildi');
+        }
+        
+        // Local state yangilash
+        await loadUserData();
+        
+        e.target.reset();
+        renderTable(); 
+        calcSummaryCards(); 
+        buildDashboardCharts(); 
+        fillRecent(); 
+        renderDailyHighlights();
+      } else {
+        notify(result.message, 'err');
+      }
+    });
+
+    // filters & sorting & pagination
+    $('#searchInput').addEventListener('input', ()=>{ page=1; renderTable(); });
+    $('#filterType').addEventListener('change', ()=>{ page=1; renderTable(); });
+    $('#filterFrom').addEventListener('change', ()=>{ page=1; renderTable(); });
+    $('#filterTo').addEventListener('change', ()=>{ page=1; renderTable(); });
+    $$('.sort').forEach(th=> th.addEventListener('click', ()=>{
+      const key = th.getAttribute('data-key');
+      if(sortKey===key){ sortDir = (sortDir==='asc'?'desc':'asc'); } else { sortKey=key; sortDir='asc'; }
+      renderTable();
+    }));
+    $('#prevPage').addEventListener('click', ()=>{ if(page>1){ page--; renderTable(); } });
+    $('#nextPage').addEventListener('click', ()=>{ page++; renderTable(); } );
+    $('#checkAll').addEventListener('change', (e)=>{
+      const list = filteredTx().slice((page-1)*pageSize, (page-1)*pageSize+pageSize);
+      list.forEach(x=> e.target.checked ? selected.add(String(x.id)) : selected.delete(String(x.id)) );
+      renderTable();
+    });
+
+    // export CSV
+    function toCSV(rows){
+      const head = ['Number','date','type','category','amount','note'];
+      return [head.join(','), ...rows.map((r, i)=> [i+1, r.date, r.type, r.category, r.amount, r.note||''].map(x=>`"${String(x??'').replace(/"/g,'""')}"`).join(','))].join('\n');
+    }
+    $('#btnExportCSV').addEventListener('click', ()=>{
+      const csv = toCSV(filteredTx());
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'transactions.csv';
+      a.click();
+    });
+
+    // ====== Categories Logic
+    async function renderCats(){
+      const list = userCats();
+      const ul = $('#catList');
+      ul.innerHTML = '';
+      if (list.length === 0) {
+        $('#noCatsMessage').classList.remove('hidden');
+      } else {
+        $('#noCatsMessage').classList.add('hidden');
+      }
+      list.forEach((name, idx)=>{
+        const li = $('#catItemTpl').content.cloneNode(true);
+        li.querySelector('.name').textContent = name;
+        li.querySelector('.edit').addEventListener('click', async ()=>{
+          const oldName = name;
+          const newName = prompt('Tahrirlash', name);
+          if(newName && newName.trim()){
+            // Backendda kategoriyani yangilash
+            const result = await apiRequest(`/categories/${oldName}?username=${currentUser.username}`, {
+              method: 'PUT',
+              body: JSON.stringify({
+                new_name: newName.trim()
+              })
+            });
+            
+            if (result.success) {
+              // Local state yangilash
+              categories[currentUser.username][idx] = newName.trim();
+              
+              // Tranzaksiyalardagi kategoriya nomini yangilash
+              const txList = transactions[currentUser.username] || [];
+              txList.forEach(tx => {
+                if (tx.category === oldName) {
+                  tx.category = newName.trim();
+                }
+              });
+              
+              renderCats(); 
+              fillCategoriesSelects(); 
+              buildDashboardCharts();
+              renderTable();
+              fillRecent();
+              renderDailyHighlights();
+              notify('Kategoriya yangilandi');
+            } else {
+              notify(result.message, 'err');
+            }
+          }
+        });
+        li.querySelector('.del').addEventListener('click', async ()=>{
+          if(confirm('O\'chirasizmi?')){
+            const result = await apiRequest(`/categories/${name}?username=${currentUser.username}`, {
+              method: 'DELETE'
+            });
+            
+            if (result.success) {
+              // Local state yangilash
+              categories[currentUser.username].splice(idx,1);
+              
+              renderCats(); 
+              fillCategoriesSelects(); 
+              buildDashboardCharts();
+              notify('Kategoriya o\'chirildi');
+            } else {
+              notify(result.message, 'err');
+            }
+          }
+        });
+        ul.appendChild(li);
+      });
+      applyTheme(); // Re-apply theme for new elements
+    }
+
+    $('#catForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const name = $('#catName').value.trim();
+      if(!name) return;
+      
+      const result = await apiRequest('/categories', {
+        method: 'POST',
+        body: JSON.stringify({
+          username: currentUser.username,
+          name: name
+        })
+      });
+      
+      if (result.success) {
+        // Local state yangilash
+        const list = categories[currentUser.username] || (categories[currentUser.username]=[]);
+        list.push(name);
+        
+        e.target.reset(); 
+        renderCats(); 
+        fillCategoriesSelects();
+        notify('Kategoriya qo\'shildi');
+      } else {
+        notify(result.message, 'err');
+      }
+    });
+
+    // ====== Reports
+    function quickPeriod(p){
+      const now = new Date();
+      let from = new Date(now), to = new Date(now);
+      if(p==='day'){ /* today */ }
+      if(p==='week'){ const day = now.getDay()||7; from.setDate(now.getDate()-day+1); }
+      if(p==='month'){ from = new Date(now.getFullYear(), now.getMonth(), 1); to = new Date(now.getFullYear(), now.getMonth()+1, 0); }
+      if(p==='year'){ from = new Date(now.getFullYear(), 0, 1); to = new Date(now.getFullYear(), 11, 31); }
+      $('#repFrom').value = from.toISOString().slice(0,10);
+      $('#repTo').value = to.toISOString().slice(0,10);
+      
+      // Active tugmani belgilash
+      $$('.period').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.period === p);
+      });
+    }
+    $$('.period').forEach(b=> b.addEventListener('click', ()=>{ quickPeriod(b.dataset.period); }));
+
+    function genReport(){
+      const from = $('#repFrom').value ? new Date($('#repFrom').value) : null;
+      const to = $('#repTo').value ? new Date($('#repTo').value) : null;
+      let list = userTx();
+      if(from) list = list.filter(t=> new Date(t.date)>=from);
+      if(to) list = list.filter(t=> new Date(t.date)<=to);
+
+      const inc = list.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);
+      const exp = list.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0);
+      $('#repIncome').textContent = toMoney(inc);
+      $('#repExpense').textContent = toMoney(exp);
+      $('#repBalance').textContent = toMoney(inc-exp);
+      $('#repCount').textContent = list.length;
+
+      // chart by day
+      const map = {};
+      list.forEach(t=>{ const k=t.date; map[k]=map[k]||{income:0,expense:0}; map[k][t.type]+=t.amount; });
+      const days = Object.keys(map).sort();
+      const incArr = days.map(d=> map[d].income);
+      const expArr = days.map(d=> map[d].expense);
+      const ctx = document.getElementById('repChart').getContext('2d');
+      if(repChart) repChart.destroy();
+      repChart = new Chart(ctx, { type:'bar', data:{ labels:days, datasets:[ {label:'Daromad', data:incArr}, {label:'Xarajat', data:expArr} ] }, options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels: { color: localStorage.getItem(SK.THEME)==='dark' ? '#f3f4f6' : '#1f2937' } } } } });
+    }
+
+    $('#btnGenReport').addEventListener('click', genReport);
+    $('#btnRepCSV').addEventListener('click', ()=>{
+      const from = $('#repFrom').value ? new Date($('#repFrom').value) : null;
+      const to = $('#repTo').value ? new Date($('#repTo').value) : null;
+      let list = userTx();
+      if(from) list = list.filter(t=> new Date(t.date)>=from);
+      if(to) list = list.filter(t=> new Date(t.date)<=to);
+      const csv = toCSV(list);
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'report.csv';
+      a.click();
+    });
+
+    // ====== Translations
+    const translations = {
+      uz: {
+        welcome_message: "Assalomu alaykum MyFinance moliyaviy nazorat ilovasiga xush kelibsiz",
+        login_subtitle: "Hisobingizga kiring",
+        username: "Login",
+        password: "Parol",
+        login_button: "Kirish",
+        no_account: "Hisobingiz yo'qmi?",
+        register_button: "Ro'yxatdan o'ting",
+        forgot_password: "Parolni unutdingizmi?",
+        register_subtitle: "Yangi hisob yarating",
+        name: "Ism",
+        phone: "Telefon raqam",
+        phone_format: "To'liq formatda kiriting: +998901234567",
+        password_length: "4-10 ta belgi",
+        confirm_password: "Parolni tasdiqlash",
+        has_account: "Allaqachon hisobingiz bormi?",
+        registration_success: "Muvaffaqiyatli ro'yxatdan o'tdingiz!",
+        login_now: "Endi tizimga kiring",
+        password_recovery: "Parolni tiklash",
+        send_code: "Kod yuborish",
+        back_to_login: "Kirish sahifasiga qaytish",
+        set_new_password: "Yangi parol o'rnatish",
+        select_username: "Loginni tanlang",
+        verification_code: "Tasdiqlash kodi",
+        resend_code: "Qayta yuborish",
+        new_password: "Yangi parol",
+        change_password: "Parolni o'zgartirish",
+        password_changed: "Parol muvaffaqiyatli o'zgartirildi!",
+        profile: "Profil",
+        logout: "Chiqish",
+        dashboard: "Dashboard",
+        dashboard_subtitle: "Umumiy ko'rsatkichlar va so'nggi faoliyat",
+        income: "Daromad",
+        expense: "Xarajat",
+        total_income: "Jami Daromad",
+        total_expense: "Jami Xarajat",
+        balance: "Balans",
+        today_highlights: "Bugungi eng yuqori tranzaksiyalar",
+        monthly_chart: "Oylar bo'yicha Daromad/Xarajat",
+        income_by_category: "Kategoriya bo'yicha Daromad",
+        expense_by_category: "Kategoriya bo'yicha Xarajat",
+        recent_transactions: "So'nggi 5 tranzaksiya",
+        view_all: "Barchasini ko'rish",
+        transactions: "Tranzaksiyalar",
+        transactions_subtitle: "Qo'shish, tahrirlash, qidirish, eksport",
+        export_csv: "CSV",
+        delete_selected: "Tanlanganlarni o'chirish",
+        amount: "Miqdor",
+        note: "Izoh",
+        add: "Qo'shish",
+        all_types: "Barcha turlari",
+        search: "Qidirish",
+        from: "Boshlanish",
+        to: "Tugash",
+        date: "Sana",
+        type: "Tur",
+        category: "Kategoriya",
+        action: "Amal",
+        prev: "Oldingi",
+        next: "Keyingi",
+        categories: "Kategoriyalar",
+        categories_subtitle: "Yaratish, tahrirlash, o'chirish",
+        category_name: "Kategoriya nomi",
+        no_categories: "Avval kategoriya qo'shing",
+        edit: "Tahrirlash",
+        delete: "O'chirish",
+        reports: "Hisobotlar",
+        reports_subtitle: "Davr tanlang va natijalarni ko'ring",
+        today: "Bugun",
+        week: "Hafta",
+        month: "Oy",
+        year: "Yil",
+        generate_report: "Hisobotni yaratish",
+        general_stats: "Umumiy ko'rsatkichlar",
+        transactions_count: "Trans. soni",
+        example_category: "Masalan: Oziq-ovqat",
+        add_category_first: "Avval kategoriya qo'shing",
+        chart: "Diagramma",
+        edit_info: "Ma'lumotlarni tahrirlash",
+        profile_photo: "Profil rasmi",
+        upload: "Yuklash",
+        remove: "O'chirish",
+        save_changes: "O'zgarishlarni saqlash",
+        current_password: "Joriy parol",
+        greeting: "Salom"
+      },
+      en: {
+        welcome_message: "Welcome to MyFinance financial control application",
+        login_subtitle: "Login to your account",
+        username: "Username",
+        password: "Password",
+        login_button: "Login",
+        no_account: "Don't have an account?",
+        register_button: "Register",
+        forgot_password: "Forgot password?",
+        register_subtitle: "Create a new account",
+        name: "Name",
+        phone: "Phone number",
+        phone_format: "Enter in full format: +998901234567",
+        password_length: "4-10 characters",
+        confirm_password: "Confirm password",
+        has_account: "Already have an account?",
+        registration_success: "Successfully registered!",
+        login_now: "Login now",
+        password_recovery: "Password recovery",
+        send_code: "Send code",
+        back_to_login: "Back to login",
+        set_new_password: "Set new password",
+        select_username: "Select username",
+        verification_code: "Verification code",
+        resend_code: "Resend code",
+        new_password: "New password",
+        change_password: "Change password",
+        password_changed: "Password changed successfully!",
+        profile: "Profile",
+        logout: "Logout",
+        dashboard: "Dashboard",
+        dashboard_subtitle: "General indicators and recent activity",
+        income: "Income",
+        expense: "Expense",
+        total_income: "Total Income",
+        total_expense: "Total Expense",
+        balance: "Balance",
+        today_highlights: "Today's highest transactions",
+        monthly_chart: "Income/Expense by month",
+        income_by_category: "Income by category",
+        expense_by_category: "Expense by category",
+        recent_transactions: "Recent 5 transactions",
+        view_all: "View all",
+        transactions: "Transactions",
+        transactions_subtitle: "Add, edit, search, export",
+        export_csv: "CSV",
+        delete_selected: "Delete selected",
+        amount: "Amount",
+        note: "Note",
+        add: "Add",
+        all_types: "All types",
+        search: "Search",
+        from: "From",
+        to: "To",
+        date: "Date",
+        type: "Type",
+        category: "Category",
+        action: "Action",
+        prev: "Previous",
+        next: "Next",
+        categories: "Categories",
+        categories_subtitle: "Create, edit, delete",
+        category_name: "Category name",
+        no_categories: "Add category first",
+        edit: "Edit",
+        delete: "Delete",
+        reports: "Reports",
+        reports_subtitle: "Select period and view results",
+        today: "Today",
+        week: "Week",
+        month: "Month",
+        year: "Year",
+        generate_report: "Generate report",
+        general_stats: "General statistics",
+        transactions_count: "Trans. count",
+        example_category: "Example: Food",
+        add_category_first: "Add category first",
+        chart: "Chart",
+        edit_info: "Edit information",
+        profile_photo: "Profile photo",
+        upload: "Upload",
+        remove: "Remove",
+        save_changes: "Save changes",
+        current_password: "Current password",
+        greeting: "Hello"
+      },
+      ru: {
+        welcome_message: "Добро пожаловать в приложение финансового контроля MyFinance",
+        login_subtitle: "Войдите в свой аккаунт",
+        username: "Логин",
+        password: "Пароль",
+        login_button: "Войти",
+        no_account: "Нет аккаунта?",
+        register_button: "Зарегистрироваться",
+        forgot_password: "Забыли пароль?",
+        register_subtitle: "Создать новый аккаунт",
+        name: "Имя",
+        phone: "Номер телефона",
+        phone_format: "Введите в полном формате: +998901234567",
+        password_length: "4-10 символов",
+        confirm_password: "Подтвердите пароль",
+        has_account: "Уже есть аккаунт?",
+        registration_success: "Успешно зарегистрировались!",
+        login_now: "Войти сейчас",
+        password_recovery: "Восстановление пароля",
+        send_code: "Отправить код",
+        back_to_login: "Вернуться к входу",
+        set_new_password: "Установить новый пароль",
+        select_username: "Выберите логин",
+        verification_code: "Код подтверждения",
+        resend_code: "Отправить код повторно",
+        new_password: "Новый пароль",
+        change_password: "Изменить пароль",
+        password_changed: "Пароль успешно изменен!",
+        profile: "Профиль",
+        logout: "Выйти",
+        dashboard: "Дашборд",
+        dashboard_subtitle: "Общие показатели и последняя активность",
+        income: "Доход",
+        expense: "Расход",
+        total_income: "Общий доход",
+        total_expense: "Общий расход",
+        balance: "Баланс",
+        today_highlights: "Самые высокие транзакции за сегодня",
+        monthly_chart: "Доход/Расход по месяцам",
+        income_by_category: "Доход по категориям",
+        expense_by_category: "Расход по категориям",
+        recent_transactions: "Последние 5 транзакций",
+        view_all: "Посмотреть все",
+        transactions: "Транзакции",
+        transactions_subtitle: "Добавить, редактировать, искать, экспортировать",
+        export_csv: "CSV",
+        delete_selected: "Удалить выбранное",
+        amount: "Сумма",
+        note: "Примечание",
+        add: "Добавить",
+        all_types: "Все типы",
+        search: "Поиск",
+        from: "С",
+        to: "По",
+        date: "Дата",
+        type: "Тип",
+        category: "Категория",
+        action: "Действие",
+        prev: "Предыдущий",
+        next: "Следующий",
+        categories: "Категории",
+        categories_subtitle: "Создать, редактировать, удалить",
+        category_name: "Название категории",
+        no_categories: "Сначала добавьте категорию",
+        edit: "Редактировать",
+        delete: "Удалить",
+        reports: "Отчеты",
+        reports_subtitle: "Выберите период и просмотрите результаты",
+        today: "Сегодня",
+        week: "Неделя",
+        month: "Месяц",
+        year: "Год",
+        generate_report: "Создать отчет",
+        general_stats: "Общая статистика",
+        transactions_count: "Кол-во транзакций",
+        example_category: "Пример: Еда",
+        add_category_first: "Сначала добавьте категорию",
+        chart: "Диаграмма",
+        edit_info: "Редактировать информацию",
+        profile_photo: "Фото профиля",
+        upload: "Загрузить",
+        remove: "Удалить",
+        save_changes: "Сохранить изменения",
+        current_password: "Текущий пароль",
+        greeting: "Привет"
+      }
+    };
+
+    // ====== Init
+    function init(){
+      initAuth();
+      fillCategoriesSelects();
+      refreshAll();
+      renderCats();
+      $('#txDate').value = new Date().toISOString().slice(0,10);
+      applyTheme();
+      
+      // Language selector
+      const langSelect = $('#langSelect');
+      const authLangSelect = $('#authLangSelect');
+      
+      // Set current language
+      langSelect.value = currentLang;
+      authLangSelect.value = currentLang;
+      
+      // Language change event
+      langSelect.addEventListener('change', async function() {
+        currentLang = this.value;
+        localStorage.setItem(SK.LANG, currentLang);
+        await translatePage();
+        refreshAll();
+      });
+      
+      authLangSelect.addEventListener('change', async function() {
+        currentLang = this.value;
+        localStorage.setItem(SK.LANG, currentLang);
+        await translatePage();
+      });
+      
+      // Initial translation
+      translatePage();
+    }
+
+    window.addEventListener('load', init);
+    window.addEventListener('DOMContentLoaded', () => {
+      // Initialize date inputs
+      const today = new Date().toISOString().slice(0, 10);
+      $('#txDate').value = today;
+      $('#filterFrom').value = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10);
+      $('#filterTo').value = today;
+    });
+  </script>
+</body>
+</html>
